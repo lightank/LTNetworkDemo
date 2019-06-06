@@ -1,0 +1,161 @@
+//
+//  NSObject+LTAdd.m
+//  LTNetworkDemo
+//
+//  Created by 李桓宇 on 2019/6/5.
+//  Copyright © 2019 huanyu.li. All rights reserved.
+//
+
+#import "NSObject+LTAdd.h"
+#import <objc/runtime.h>
+
+@implementation NSObject (LTAdd)
+
++ (NSArray<NSString *> *)lt_subClassOf:(Class)defaultClass includeSelf:(BOOL)include
+{
+    NSMutableArray *output = [[NSMutableArray alloc] init];
+    if (include) [output addObject:NSStringFromClass(defaultClass)];
+    int count = objc_getClassList(NULL, 0);
+    if (count <= 0 || !defaultClass)
+    {
+        return output;
+    }
+    Class *classes = (Class *) malloc(sizeof(Class) * count);
+    objc_getClassList(classes, count);
+    for (int i = 0; i < count; ++i)
+    {
+        if (defaultClass == class_getSuperclass(classes[i]))//子类
+        {
+            [output addObject:NSStringFromClass(classes[i])];
+        }
+    }
+    free(classes);
+    return [NSArray arrayWithArray:output];
+}
+
++ (NSArray *)lt_allSubClassOf:(Class)defaultClass includeSelf:(BOOL)include
+{
+    NSMutableArray *output = [[NSMutableArray alloc] init];
+    if (include) [output addObject:NSStringFromClass(defaultClass)];
+    int count = objc_getClassList(NULL, 0);
+    if (count <= 0 || !defaultClass)
+    {
+        return output;
+    }
+    Class *classes = (Class *) malloc(sizeof(Class) * count);
+    objc_getClassList(classes, count);
+    for (int i = 0; i < count; ++i)
+    {
+        NSArray<NSString *> *superClasses = [NSObject lt_superClassOf:classes[i]];
+        if ([superClasses containsObject:NSStringFromClass(defaultClass)])//子类
+        {
+            [output addObject:NSStringFromClass(classes[i])];
+        }
+    }
+    free(classes);
+    return [NSArray arrayWithArray:output];
+}
+
++ (NSArray<NSString *> *)lt_superClassOf:(Class)defaultClass
+{
+    __block NSMutableArray *allClassContainArray = [[NSMutableArray alloc] init];
+    Class superClass = class_getSuperclass(defaultClass);
+    while (superClass)
+    {
+        [allClassContainArray addObject:NSStringFromClass(superClass)];
+        superClass = class_getSuperclass(superClass);
+    }
+    return allClassContainArray;
+}
+
+/**
+ * 返回对象中属性的类型
+ * @return NSString 返回属性的类型
+ **/
++ (nullable NSString *)lt_classNameForProperty:(NSString *)propertyName
+{
+    return [NSObject lt_allPropertyDictionaryOf:self][propertyName];
+}
+
++ (nullable NSString *)lt_propertyNameForClass:(Class _Nonnull)className
+{
+    __block NSString *propertyName = nil;
+    Class class = self;
+    if (!class)
+    {
+        return propertyName;
+    }
+    
+    Class superClass = self;
+    while (superClass && !propertyName)
+    {
+        NSDictionary<NSString *, NSString *> *propertyDictionary = [NSObject lt_propertyDictionaryOf:superClass];
+        [propertyDictionary enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+            NSArray *superClasees = [NSObject lt_superClassOf:NSClassFromString(obj)];
+            if ([superClasees containsObject:NSStringFromClass(className)])
+            {
+                *stop = YES;
+                propertyName = key;
+            }
+        }];
+        superClass = class_getSuperclass(superClass);
+    }
+    
+    return propertyName;
+}
+
++ (nullable NSDictionary<NSString *, NSString *> *)lt_allPropertyDictionaryOf:(Class _Nonnull)defaultClass
+{
+    NSMutableDictionary *dictionary = @{}.mutableCopy;
+    Class superClass = defaultClass;
+    while (superClass)
+    {
+        NSDictionary<NSString *, NSString *> *propertyDictionary = [NSObject lt_propertyDictionaryOf:superClass];
+        [dictionary addEntriesFromDictionary:propertyDictionary];
+        superClass = class_getSuperclass(superClass);
+    }
+    return dictionary;
+}
+
++ (nullable NSDictionary<NSString *, NSString *> *)lt_propertyDictionaryOf:(Class _Nonnull)defaultClass
+{
+    NSMutableDictionary *dictionary = @{}.mutableCopy;
+    
+    unsigned int propertyCount;
+    objc_property_t *properties = class_copyPropertyList([defaultClass class], &propertyCount);
+    for (int i = 0; i < propertyCount; i++)
+    {
+        objc_property_t property = properties[i];
+        //属性名称
+        const char *propertyNameChar = property_getName(property);
+        NSString *propertyNameStr = [NSString stringWithUTF8String:propertyNameChar];
+        
+        //属性对应的类型名字
+        char *typeEncoding = property_copyAttributeValue(property,"T");
+        NSString *typeEncodingStr = [NSString stringWithUTF8String:typeEncoding];
+        typeEncodingStr = [typeEncodingStr stringByReplacingOccurrencesOfString:@"@" withString:@""];
+        typeEncodingStr = [typeEncodingStr stringByReplacingOccurrencesOfString:@"\\" withString:@""];
+        typeEncodingStr = [typeEncodingStr stringByReplacingOccurrencesOfString:@"\"" withString:@""];
+        
+        dictionary[propertyNameStr] = typeEncodingStr;
+    }
+    free(properties);
+    
+    return dictionary;
+}
+
+
+//将obj转换成json字符串。如果失败则返回nil.
+- (NSString *)lt_JSONString
+{
+    //先判断是否能转化为JSON格式
+    if (![NSJSONSerialization isValidJSONObject:self])  return nil;
+    NSError *error = nil;
+    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:self options:NSJSONWritingPrettyPrinted  error:&error];
+    if (error || !jsonData) return nil;
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return jsonString;
+}
+
+@end
+

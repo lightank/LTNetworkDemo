@@ -38,17 +38,17 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSArray<NSString *> *_Nonnull)lt_superClassOf:(Class _Nonnull)defaultClass;
 
 /**
- * 返回对象中属性的class类型,如果你用NSClassFromString()返回了nil,请检查是否把相应类加入了target,或者有无实现@implementation
- * @return NSString 返回属性的类型
+ * 返回对象中属性的class类型字典,如果你用NSClassFromString()返回了nil,请检查是否把相应类加入了target,或者有无实现@implementation
+ * @return NSDictionary 返回属性的字典,key是class类型,value是属性名字
  **/
-+ (nullable NSString *)lt_classNameForProperty:(NSString *_Nonnull)propertyName;
++ (nullable NSDictionary<NSString *, NSString *> *)lt_classNameForProperty:(NSString *_Nonnull)propertyName;
 
 
 /**
- * 返回对象中属性class对应的属性名称,会搜索父类的属性,如果你用NSClassFromString()返回了nil,请检查是否把相应类加入了target,或者有无实现@implementation
- * @return NSString 返回属性的类型
+ * 返回对象中属性class对应的属性字典,会搜索父类的属性,如果你用NSClassFromString()返回了nil,请检查是否把相应类加入了target,或者有无实现@implementation
+ * @return NSDictionary 返回属性的字典,key是class类型,value是属性名字
  **/
-+ (nullable NSString *)lt_propertyNameForClass:(Class _Nonnull)className;
++ (nullable NSDictionary<NSString *, NSString *> *)lt_propertyNameForClass:(Class _Nonnull)className;
 
 /**
  * 返回对象中key为属性名称,value为class类型字符串的字典,包含所有父类的属性,如果你用NSClassFromString()返回了nil,请检查是否把相应类加入了target,或者有无实现@implementation

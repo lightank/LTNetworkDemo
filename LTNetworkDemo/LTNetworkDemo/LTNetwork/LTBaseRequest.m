@@ -104,10 +104,19 @@
         NSLog(@"请求%@没有解析json对应的model", NSStringFromClass(self.class));
         return [super statusCodeValidator];
     }
-    // 找到属性名
-    NSString *baseResopnesName = [self.class lt_propertyNameForClass:baseResopnesClass];
-    // 找到真正的类名
-    Class modelClass = NSClassFromString([self.class lt_classNameForProperty:baseResopnesName]);
+    // 找到属性字典
+    NSDictionary *baseResopnesDictionary = [self.class lt_propertyNameForClass:baseResopnesClass];
+    Class modelClass = nil;
+    NSString *baseResopnesName = nil;
+    if (baseResopnesDictionary)
+    {
+        modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
+        baseResopnesName = baseResopnesDictionary.allValues.firstObject;
+    }
+    if (!modelClass)
+    {
+        return [super statusCodeValidator];
+    }
     // 解析数据
     id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
     if (baseResopnes)

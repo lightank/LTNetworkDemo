@@ -72,7 +72,7 @@
  * 返回对象中属性的类型
  * @return NSString 返回属性的类型
  **/
-+ (nullable NSString *)lt_classNameForProperty:(NSString *)propertyName
++ (nullable NSDictionary<NSString *, NSString *> *)lt_classNameForProperty:(NSString *)propertyName
 {
     if (!propertyName)
     {
@@ -86,25 +86,36 @@
     });
     
     NSString *key = [NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), propertyName];
-    NSString *className = cacheDictionary[key];
-    if (className)
+    NSMutableDictionary *propertyDictionary = cacheDictionary[key];
+    if (propertyDictionary)
     {
-        return [className isKindOfClass:[NSNull class]] ? nil : className;
+        return [propertyDictionary isKindOfClass:[NSNull class]] ? nil : propertyDictionary;
     }
     
-    className = [NSObject lt_allPropertyDictionaryOf:self][propertyName];
-    cacheDictionary[key] = className ? : [NSNull null];
+    propertyDictionary = @{}.mutableCopy;
+    NSString *className = [NSObject lt_allPropertyDictionaryOf:self][propertyName];
+    if (className)
+    {
+        propertyDictionary[className] = propertyName;
+    }
+    else
+    {
+        propertyDictionary = nil;
+    }
     
-    return className;
+    cacheDictionary[key] = propertyDictionary ? : [NSNull null];
+    
+    return propertyDictionary;
 }
 
-+ (nullable NSString *)lt_propertyNameForClass:(Class _Nonnull)className
++ (nullable NSDictionary<NSString *, NSString *> *)lt_propertyNameForClass:(Class _Nonnull)className
 {
     __block NSString *propertyName = nil;
+    __block NSString *propertyClassName = nil;
     Class class = self;
     if (!class)
     {
-        return propertyName;
+        return nil;
     }
     
     static dispatch_once_t onceToken;
@@ -114,12 +125,13 @@
     });
     
     NSString *key = [NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), className];
-    propertyName = cacheDictionary[key];
-    if (propertyName)
+    __block NSMutableDictionary *propertyDictionary = cacheDictionary[key];
+    if (propertyDictionary)
     {
-        return [propertyName isKindOfClass:[NSNull class]] ? nil : propertyName;
+        return [propertyDictionary isKindOfClass:[NSNull class]] ? nil : propertyDictionary;
     }
     
+    propertyDictionary = @{}.mutableCopy;
     Class superClass = self;
     while (superClass && !propertyName)
     {
@@ -130,14 +142,23 @@
             {
                 *stop = YES;
                 propertyName = key;
+                propertyClassName = obj;
             }
         }];
         superClass = class_getSuperclass(superClass);
     }
     
-    cacheDictionary[key] = propertyName ? : [NSNull null];
+    if (propertyClassName)
+    {
+        propertyDictionary[propertyClassName] = propertyName;
+    }
+    else
+    {
+        propertyDictionary = nil;
+    }
+    cacheDictionary[key] = propertyDictionary ? : [NSNull null];
 
-    return propertyName;
+    return propertyDictionary;
 }
 
 + (nullable NSDictionary<NSString *, NSString *> *)lt_allPropertyDictionaryOf:(Class _Nonnull)defaultClass

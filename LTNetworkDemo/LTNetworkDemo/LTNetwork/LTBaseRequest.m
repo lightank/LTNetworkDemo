@@ -10,6 +10,31 @@
 #import <YYKit/YYKit.h>
 #import "NSObject+LTAdd.h"
 
+@implementation YTKBaseRequest (PostMan)
+
+- (NSString *)postManString
+{
+    if (self.requestMethod == YTKRequestMethodGET)
+    {
+        return [NSString stringWithFormat:@"<%@: %p>{ URL: %@ } { method: %@ } { arguments: %@ }", NSStringFromClass([self class]), self, self.currentRequest.URL, self.currentRequest.HTTPMethod, self.requestArgument];
+    }
+    else
+    {
+        NSDictionary *dict = [self requestArgument];
+        __block NSMutableString *argumentsString = @"?".mutableCopy;
+        __block NSMutableArray *arguments = @[].mutableCopy;
+        [dict enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+            NSString *argment = [NSString stringWithFormat:@"%@=%@", key, obj];
+            [arguments addObject:argment];
+        }];
+        [argumentsString appendString:[arguments componentsJoinedByString:@"&"]];
+        NSString *urlStr = [NSString stringWithFormat:@"%@%@", self.currentRequest.URL.absoluteString, argumentsString];
+        return [NSString stringWithFormat:@"<%@: %p>{ URL: %@ } { method: %@ } { arguments: %@ }", NSStringFromClass([self class]), self, urlStr, self.currentRequest.HTTPMethod, self.requestArgument];
+    }
+}
+
+@end
+
 @interface LTBaseRequest ()
 
 /**  是否已经处理过请求参数,比如添加公共参数  */

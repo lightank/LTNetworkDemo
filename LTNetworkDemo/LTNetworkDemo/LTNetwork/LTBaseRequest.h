@@ -15,6 +15,13 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface YTKBaseRequest (PostMan)
+
+// 提供url字符串,方法提供给后台调试
+- (NSString *)postManString;
+
+@end
+
 @interface LTBaseRequest : YTKBaseRequest
 
 /**  参数字典  */

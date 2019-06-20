@@ -123,31 +123,10 @@
 
 - (BOOL)statusCodeValidator
 {
-    Class baseResopnesClass = NSClassFromString([self baseResopnesModelClassName]);
-    if (!baseResopnesClass)
-    {
-        NSLog(@"请求%@没有解析json对应的model", NSStringFromClass(self.class));
-        return [super statusCodeValidator];
-    }
-    // 找到属性字典
-    NSDictionary *baseResopnesDictionary = [self.class lt_propertyNameForClass:baseResopnesClass];
-    Class modelClass = nil;
-    NSString *baseResopnesName = nil;
-    if (baseResopnesDictionary)
-    {
-        modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
-        baseResopnesName = baseResopnesDictionary.allValues.firstObject;
-    }
-    if (!modelClass)
-    {
-        return [super statusCodeValidator];
-    }
-    // 解析数据
-    id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
+    // 解析data数据
+    id baseResopnes = [self analysisData];
     if (baseResopnes)
     {
-        [self setValue:baseResopnes forKey:baseResopnesName];
-        
         if ([baseResopnes respondsToSelector:@selector(isTokenInvalid)] && [(id <LTBaseRequestResponse>)baseResopnes isTokenInvalid])
         {
             [self tokenDidInvalid];
@@ -176,6 +155,38 @@
 
 
 #pragma mark - 事件处理
+// 解析data数据
+- (id)analysisData
+{
+    Class baseResopnesClass = NSClassFromString([self baseResopnesModelClassName]);
+    if (!baseResopnesClass)
+    {
+        NSLog(@"请求%@没有解析json对应的model", NSStringFromClass(self.class));
+        return nil;
+    }
+    // 找到属性字典
+    NSDictionary *baseResopnesDictionary = [self.class lt_propertyNameForClass:baseResopnesClass];
+    Class modelClass = nil;
+    NSString *baseResopnesName = nil;
+    if (baseResopnesDictionary)
+    {
+        modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
+        baseResopnesName = baseResopnesDictionary.allValues.firstObject;
+    }
+    if (!modelClass)
+    {
+        return nil;
+    }
+    // 解析数据
+    id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
+    if (baseResopnes)
+    {
+        [self setValue:baseResopnes forKey:baseResopnesName];
+        return baseResopnes;
+    }
+    return nil;
+}
+
 /// 添加请求参数
 - (void)setArgument:(id)value forKey:(NSString*)key
 {

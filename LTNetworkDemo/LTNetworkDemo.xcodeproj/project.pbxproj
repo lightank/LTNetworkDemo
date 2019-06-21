@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0B5172FCD0BC5217A90EA9E3 /* libPods-LTNetworkDemo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 075DBDC3183F8A5C505B8FF5 /* libPods-LTNetworkDemo.a */; };
+		A0621EBD22BC751C00739E95 /* LTBaseRequestDataResponse.m in Sources */ = {isa = PBXBuildFile; fileRef = A0621EBC22BC751B00739E95 /* LTBaseRequestDataResponse.m */; };
 		A064C94C22A7F55500B9AD3F /* LTTestRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = A064C94B22A7F55500B9AD3F /* LTTestRequest.m */; };
 		A09ECB1422A78FBB000A03B6 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = A09ECB1322A78FBB000A03B6 /* AppDelegate.m */; };
 		A09ECB1722A78FBB000A03B6 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A09ECB1622A78FBB000A03B6 /* ViewController.m */; };
@@ -23,6 +24,8 @@
 /* Begin PBXFileReference section */
 		075DBDC3183F8A5C505B8FF5 /* libPods-LTNetworkDemo.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-LTNetworkDemo.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		8C8F0D84EC463BC0851FD1E4 /* Pods-LTNetworkDemo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LTNetworkDemo.debug.xcconfig"; path = "Target Support Files/Pods-LTNetworkDemo/Pods-LTNetworkDemo.debug.xcconfig"; sourceTree = "<group>"; };
+		A0621EBB22BC751B00739E95 /* LTBaseRequestDataResponse.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTBaseRequestDataResponse.h; sourceTree = "<group>"; };
+		A0621EBC22BC751B00739E95 /* LTBaseRequestDataResponse.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LTBaseRequestDataResponse.m; sourceTree = "<group>"; };
 		A064C94A22A7F55500B9AD3F /* LTTestRequest.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LTTestRequest.h; sourceTree = "<group>"; };
 		A064C94B22A7F55500B9AD3F /* LTTestRequest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LTTestRequest.m; sourceTree = "<group>"; };
 		A09ECB0F22A78FBB000A03B6 /* LTNetworkDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LTNetworkDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -126,6 +129,8 @@
 			children = (
 				A09ECB3022A7916E000A03B6 /* LTBaseRequestResponse.h */,
 				A09ECB3122A7916E000A03B6 /* LTBaseRequestResponse.m */,
+				A0621EBB22BC751B00739E95 /* LTBaseRequestDataResponse.h */,
+				A0621EBC22BC751B00739E95 /* LTBaseRequestDataResponse.m */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -238,6 +243,7 @@
 				A09ECB1722A78FBB000A03B6 /* ViewController.m in Sources */,
 				A09ECB3622A7C9DD000A03B6 /* NSObject+LTAdd.m in Sources */,
 				A09ECB3222A7916E000A03B6 /* LTBaseRequestResponse.m in Sources */,
+				A0621EBD22BC751C00739E95 /* LTBaseRequestDataResponse.m in Sources */,
 				A09ECB2222A78FBC000A03B6 /* main.m in Sources */,
 				A09ECB2B22A79106000A03B6 /* LTBaseRequest.m in Sources */,
 				A09ECB1422A78FBB000A03B6 /* AppDelegate.m in Sources */,

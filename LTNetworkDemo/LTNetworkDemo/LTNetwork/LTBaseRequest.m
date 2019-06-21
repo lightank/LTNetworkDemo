@@ -158,32 +158,43 @@
 // 解析data数据
 - (id)analysisData
 {
+    // 解析data
+    Class baseResopnesDataClass = NSClassFromString([self baseResopnesDataModelClassName]);
+    NSDictionary *baseResopnesDataDictionary = [self.class lt_propertyNameForClass:baseResopnesDataClass];
+    if (baseResopnesDataDictionary)
+    {
+        Class dataModelClass = NSClassFromString(baseResopnesDataDictionary.allKeys.firstObject);
+        NSString *baseResopnesDataName = baseResopnesDataDictionary.allValues.firstObject;
+        id baseResopnesData = [dataModelClass.class modelWithJSON:self.responseJSONObject];
+        if (baseResopnesData)
+        {
+            [self setValue:baseResopnesData forKey:baseResopnesDataName];
+        }
+    }
+    
+    // 解析全部数据
+    // 找到类名
     Class baseResopnesClass = NSClassFromString([self baseResopnesModelClassName]);
+    // 找到属性字典
+    NSDictionary *baseResopnesDictionary = [self.class lt_propertyNameForClass:baseResopnesClass];
+    if (baseResopnesDictionary)
+    {
+        Class modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
+        NSString *baseResopnesName = baseResopnesDictionary.allValues.firstObject;
+        // 解析数据
+        id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
+        if (baseResopnes)
+        {
+            [self setValue:baseResopnes forKey:baseResopnesName];
+            return baseResopnes;
+        }
+    }
+    
     if (!baseResopnesClass)
     {
         NSLog(@"请求%@没有解析json对应的model", NSStringFromClass(self.class));
-        return nil;
     }
-    // 找到属性字典
-    NSDictionary *baseResopnesDictionary = [self.class lt_propertyNameForClass:baseResopnesClass];
-    Class modelClass = nil;
-    NSString *baseResopnesName = nil;
-    if (baseResopnesDictionary)
-    {
-        modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
-        baseResopnesName = baseResopnesDictionary.allValues.firstObject;
-    }
-    if (!modelClass)
-    {
-        return nil;
-    }
-    // 解析数据
-    id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
-    if (baseResopnes)
-    {
-        [self setValue:baseResopnes forKey:baseResopnesName];
-        return baseResopnes;
-    }
+    
     return nil;
 }
 
@@ -202,6 +213,11 @@
 - (NSString *)baseResopnesModelClassName
 {
     return @"LTBaseRequestResponse";
+}
+
+- (NSString *)baseResopnesDataModelClassName
+{
+    return @"LTBaseRequestDataResponse";
 }
 
 - (NSString *)macValueForDictionary:(NSDictionary *)dict

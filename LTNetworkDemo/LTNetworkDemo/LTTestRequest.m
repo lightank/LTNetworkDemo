@@ -34,7 +34,8 @@
 ///默认都是 post
 - (YTKRequestMethod)requestMethod
 {
-    return YTKRequestMethodGET;
+    return YTKRequestMethodPOST;
+    //return YTKRequestMethodGET;
 }
 
 - (NSTimeInterval)requestTimeoutInterval

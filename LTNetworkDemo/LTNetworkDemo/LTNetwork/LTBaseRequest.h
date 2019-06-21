@@ -36,6 +36,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setArgument:(id)value forKey:(NSString*)key;
 /**  请求后解析json后的对应的模型,可以是这个base的子类,建议不同的请求这个模型集成自LTBaseRequestResponse  */
 - (NSString *)baseResopnesModelClassName;
+/**  请求后解析json字典data后的对应的模型,可以是这个base的子类,建议不同的请求这个模型集成自LTBaseRequestDataResponse  */
+- (NSString *)baseResopnesDataModelClassName;
 
 #pragma mark - code处理
 /**  在 isRequestSuccess 为 YES 的情况下会调用这个方法,默认什么都不做,子类可以重写这个  */

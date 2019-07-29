@@ -8,7 +8,6 @@
 
 #import <Foundation/Foundation.h>
 @class LTNetworkTools, LTConnectPort;
-extern LTNetworkTools *LTNetworkToolsInstance;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -16,6 +15,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**  当前连接url对象  */
 @property (nonatomic, strong) LTConnectPort *connectPort;
+
+/**  单例  */
++ (instancetype)sharedInstance;
 
 /**  拼接URL路径  */
 + (NSString *)URL:(NSString *)urlString;

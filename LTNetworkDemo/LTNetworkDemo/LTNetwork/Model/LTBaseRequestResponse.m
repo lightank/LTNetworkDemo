@@ -7,6 +7,7 @@
 //
 
 #import "LTBaseRequestResponse.h"
+#import "LTBaseRequest.h"
 
 //*********************** 状态码,这个是跟后台讨论的 ***********************
 typedef NSString *LTResponseCode NS_EXTENSIBLE_STRING_ENUM;
@@ -24,7 +25,7 @@ static LTResponseCode const kPublicResponseServerNotResponseCode = @"500";
 /**  错误信息,在请求失败时的错误信息,如果后台返回的 msg 有值就返回值,没有值就返回一个默认值:抱歉，当前访问用户过多，请稍后重试  */
 - (NSString *)errorMessage
 {
-    NSString *errorMessage = nil;
+    NSString *errorMessage = self.message;
     if ([self isRequestSuccess])
     {
         errorMessage = nil;
@@ -39,7 +40,7 @@ static LTResponseCode const kPublicResponseServerNotResponseCode = @"500";
     }
     else if ([self isServerNotResponse])
     {
-        errorMessage = self.message ? : @"当前用户过多,请稍后重试";
+        errorMessage = self.message ? : kDefaultErrorInfo;
     }
     
     return errorMessage;
@@ -47,22 +48,22 @@ static LTResponseCode const kPublicResponseServerNotResponseCode = @"500";
 /**  是否请求成功  */
 - (BOOL)isRequestSuccess
 {
-    return [self.message isEqualToString:kPublicResponseSuccessCode];
+    return [self.code isEqualToString:kPublicResponseSuccessCode];
 }
 /**  是否token失效  */
 - (BOOL)isTokenInvalid
 {
-    return [self.message isEqualToString:kPublicResponseTokenInvalidCode];
+    return [self.code isEqualToString:kPublicResponseTokenInvalidCode];
 }
 /**  是否版本失效  */
 - (BOOL)isVersonInvalid
 {
-    return [self.message isEqualToString:kPublicResponseTokenInvalidCode];
+    return [self.code isEqualToString:kPublicResponseTokenInvalidCode];
 }
 /**  是否服务器500错误  */
 - (BOOL)isServerNotResponse
 {
-    return [self.message isEqualToString:kPublicResponseServerNotResponseCode];
+    return [self.code isEqualToString:kPublicResponseServerNotResponseCode];
 }
 
 @end

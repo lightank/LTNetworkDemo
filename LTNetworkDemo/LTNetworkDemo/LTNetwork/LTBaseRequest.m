@@ -7,8 +7,12 @@
 //
 
 #import "LTBaseRequest.h"
+#import <CommonCrypto/CommonCryptor.h>
 #import <YYKit/YYKit.h>
 #import "NSObject+LTAdd.h"
+#import "LTRequestPublicArgument.h"
+#import "LTBaseRequestResponse.h"
+#import "LTNetworkTools.h"
 
 @implementation YTKBaseRequest (PostMan)
 
@@ -63,6 +67,8 @@
         _shouldAddPublicArguments = YES;
         _shouldAddMACArguments = YES;
         _finishedHandleArgument = NO;
+        _isAES = NO;
+        _errorMessage = kDefaultErrorInfo;
     }
     return self;
 }
@@ -82,12 +88,13 @@
 
 - (NSString *)baseUrl
 {
-    return @"http://127.0.0.1";
+    return [LTNetworkTools sharedInstance].connectPort.requestBaseURL;
 }
 
 - (NSDictionary *)requestHeaderFieldValueDictionary
 {
     NSMutableDictionary *header = [NSMutableDictionary dictionary];
+    // 这里需要获取token来赋值
     NSString *tokenid = @"token";
     header[@"token"] = tokenid;
     return header;
@@ -107,14 +114,12 @@
     // 处理公共参数
     if (self.shouldAddPublicArguments)
     {
-        NSMutableDictionary *publicArguments = @{}.mutableCopy;
-        publicArguments[@"version"] = @"v1.0";
-        [mDict addEntriesFromDictionary:publicArguments];
+        [mDict addEntriesFromDictionary:[[LTRequestPublicArgument new] modelToJSONObject]];
     }
     // 处理MAC
     if (self.shouldAddMACArguments)
     {
-        mDict[@"sign"] = [self macValueForDictionary:mDict];
+        mDict[@"sign"] = [self macForDictionary:mDict];
     }
     
     self.finishedHandleArgument = YES;
@@ -158,6 +163,8 @@
 // 解析data数据
 - (id)analysisData
 {
+    NSDictionary *reponseObj = nil;
+    reponseObj = self.isAES ? [self responseObjectWithDecryp:self.responseJSONObject] :self.responseJSONObject;
     // 解析data
     Class baseResopnesDataClass = NSClassFromString([self baseResopnesDataModelClassName]);
     NSDictionary *baseResopnesDataDictionary = [self.class lt_propertyNameForClass:baseResopnesDataClass];
@@ -165,7 +172,7 @@
     {
         Class dataModelClass = NSClassFromString(baseResopnesDataDictionary.allKeys.firstObject);
         NSString *baseResopnesDataName = baseResopnesDataDictionary.allValues.firstObject;
-        id baseResopnesData = [dataModelClass.class modelWithJSON:self.responseJSONObject];
+        id baseResopnesData = [dataModelClass.class modelWithJSON:reponseObj];
         if (baseResopnesData)
         {
             [self setValue:baseResopnesData forKey:baseResopnesDataName];
@@ -182,10 +189,14 @@
         Class modelClass = NSClassFromString(baseResopnesDictionary.allKeys.firstObject);
         NSString *baseResopnesName = baseResopnesDictionary.allValues.firstObject;
         // 解析数据
-        id baseResopnes = [modelClass.class modelWithJSON:self.responseJSONObject];
+        id baseResopnes = [modelClass.class modelWithJSON:reponseObj];
         if (baseResopnes)
         {
             [self setValue:baseResopnes forKey:baseResopnesName];
+            if ([baseResopnes isKindOfClass:[LTBaseRequestResponse class]])
+            {
+                self.errorMessage = ((LTBaseRequestResponse *)baseResopnes).errorMessage;
+            }
             return baseResopnes;
         }
     }
@@ -220,7 +231,13 @@
     return @"LTBaseRequestDataResponse";
 }
 
-- (NSString *)macValueForDictionary:(NSDictionary *)dict
+#pragma mark - 加解密/签名
+/**
+ 签名参数串
+ @param dict 参数
+ @return 返回签名后的参数
+ */
+- (NSString *)macForDictionary:(NSMutableDictionary *)dict
 {
     // 先排序
     NSArray *keys = [dict allKeys];
@@ -233,9 +250,17 @@
     NSMutableString *result = [NSMutableString stringWithString:salt];
     for (NSString *key in sortedArray)
     {
-        [result appendString:[NSString stringWithFormat:@"%@%@", key, [dict objectForKey:key]]];
+        [result appendString:[NSString stringWithFormat:@"%@%@",key,[dict objectForKey:key]]];
     }
     return result.md5String;
+}
+
+- (id)responseObjectWithDecryp:(id)reponse
+{
+    id deReponse = [reponse mutableCopy];
+    // 这里进行aes解密
+    
+    return deReponse;
 }
 
 #pragma mark - code处理

@@ -23,8 +23,6 @@ static BOOL kShowEnvironmentViewController = NO;
 static NSInteger kDefaultNetworkType = 0;
 #endif
 
-LTNetworkTools *LTNetworkToolsInstance = nil;
-
 @interface LTNetworkTools ()
 
 /**  环境数组  */
@@ -36,29 +34,21 @@ LTNetworkTools *LTNetworkToolsInstance = nil;
 
 @implementation LTNetworkTools
 
-+ (void)initialize
-{
-    if (self == [LTNetworkTools class])
-    {
-        [self sharedInstance];
-    }
-}
-
 /**  拼接URL路径  */
 + (NSString *)URL:(NSString *)urlString
 {
-    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:LTNetworkToolsInstance.connectPort.requestBaseURL]].absoluteString;
+    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:[LTNetworkTools sharedInstance].connectPort.requestBaseURL]].absoluteString;
 }
 
 /**  拼接H5 URL路径  */
 + (NSString *)HTML5URL:(NSString *)urlString
 {
-    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:LTNetworkToolsInstance.connectPort.webBaseURL]].absoluteString;
+    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:[LTNetworkTools sharedInstance].connectPort.webBaseURL]].absoluteString;
 }
 /**  拼接图片 URL路径  */
 + (NSURL *)imageURL:(NSString *)urlString
 {
-    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:LTNetworkToolsInstance.connectPort.resourceBaseURL]];
+    return [NSURL URLWithString:urlString relativeToURL:[NSURL URLWithString:[LTNetworkTools sharedInstance].connectPort.resourceBaseURL]];
 }
 #pragma mark - 网络监听
 /**  网络库配置  */
@@ -119,12 +109,12 @@ LTNetworkTools *LTNetworkToolsInstance = nil;
     }];
     [alertController addAction:diyAction];
     
-    [LTNetworkToolsInstance.environmentArray enumerateObjectsUsingBlock:^(LTConnectPort * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+    [[LTNetworkTools sharedInstance].environmentArray enumerateObjectsUsingBlock:^(LTConnectPort * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         NSString *titleName = obj.name;
         titleName = titleName ? titleName : @"无名称，联系开发";
         UIAlertAction *action = [UIAlertAction actionWithTitle:titleName style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
             NSUInteger index = idx;
-            LTNetworkToolsInstance.environmentType = index;
+            [LTNetworkTools sharedInstance].environmentType = index;
         }];
         [alertController addAction:action];
     }];
@@ -181,14 +171,17 @@ LTNetworkTools *LTNetworkToolsInstance = nil;
 }
 
 /**  单例  */
-+ (LTNetworkTools *)sharedInstance
++ (instancetype)sharedInstance
 {
     static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        LTNetworkToolsInstance = [[LTNetworkTools alloc] init];
-        LTNetworkToolsInstance.environmentType = kDefaultNetworkType;
+    static LTNetworkTools *instance = nil;
+    dispatch_once(&onceToken,^{
+        instance = [[super allocWithZone:NULL] init];
+        // 网络环境设置,这里设置默认的环境类型,0:生产环境,1:测试环境
+        instance.environmentType = kDefaultNetworkType;
+        [LTNetworkTools monitorNetworkStatus];
     });
-    return LTNetworkToolsInstance;
+    return instance;
 }
 
 - (instancetype)init
@@ -247,7 +240,7 @@ LTNetworkTools *LTNetworkToolsInstance = nil;
 - (void)setConnectPort:(LTConnectPort *)connectPort
 {
     _connectPort = connectPort;
-    [YTKNetworkConfig sharedConfig].baseUrl = LTNetworkToolsInstance.connectPort.requestBaseURL;
+    [YTKNetworkConfig sharedConfig].baseUrl = [LTNetworkTools sharedInstance].connectPort.requestBaseURL;
 }
 
 + (UIViewController *)currentViewController

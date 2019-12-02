@@ -40,7 +40,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, copy) NSString *errorMessage;
 
 /**  添加请求参数  */
-- (void)setArgument:(id)value forKey:(NSString*)key;
+- (void)setArgument:(id)value forKey:(NSString *)key;
 /**  请求后解析json后的对应的模型,可以是这个base的子类,建议不同的请求这个模型集成自LTBaseRequestResponse  */
 - (NSString *)baseResopnesModelClassName;
 /**  请求后解析json字典data后的对应的模型,可以是这个base的子类,建议不同的请求这个模型集成自LTBaseRequestDataResponse  */

@@ -73,9 +73,6 @@
     return self;
 }
 
-
-
-///默认都是 post
 - (YTKRequestMethod)requestMethod
 {
     return YTKRequestMethodPOST;

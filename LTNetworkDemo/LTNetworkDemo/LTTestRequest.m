@@ -24,9 +24,7 @@
     self = [super init];
     if (self)
     {
-        [self setArgument:@35 forKey:@"lat"];
-        [self setArgument:@139 forKey:@"lon"];
-        [self setArgument:@"b1b15e88fa797225412429c1c50c122a1" forKey:@"appid"];
+        
     }
     return self;
 }
@@ -34,8 +32,8 @@
 ///默认都是 post
 - (YTKRequestMethod)requestMethod
 {
-    return YTKRequestMethodPOST;
-    //return YTKRequestMethodGET;
+    //return YTKRequestMethodPOST;
+    return YTKRequestMethodGET;
 }
 
 - (NSTimeInterval)requestTimeoutInterval
@@ -45,7 +43,18 @@
 
 - (NSString *)baseUrl
 {
-    return @"http://samples.openweathermap.org/data/2.5/weather";
+    return @"https://api.fda.gov/food/enforcement.json";
 }
 
 @end
+
+/*
+ 公共api：
+ public-apis：https://github.com/public-apis/public-apis
+ 微博：https://open.weibo.com/wiki/API
+ GitHub：https://developer.github.com/v3/
+ 
+ api搜索：
+ apis：http://apis.io/
+ 
+ */
